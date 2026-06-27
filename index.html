@@ -1,0 +1,1714 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>treegger 데모</title>
+    <style>
+      :root {
+        --ink: #17201d;
+        --muted: #63706b;
+        --line: #dde7e2;
+        --paper: #fbfbf5;
+        --card: #ffffff;
+        --green: #166a4c;
+        --green-2: #2f9871;
+        --blue: #397ca8;
+        --coral: #ef755f;
+        --gold: #f4b84a;
+        --mint: #dff2ea;
+        --sky: #dceefa;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 14% 12%, rgba(57, 124, 168, 0.2), transparent 27%),
+          radial-gradient(circle at 86% 8%, rgba(239, 117, 95, 0.18), transparent 26%),
+          linear-gradient(135deg, #e9f3ef, #f6efe8 52%, #eaf2f8);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .phone {
+        position: relative;
+        width: min(430px, 100vw);
+        height: min(880px, 100vh);
+        overflow: hidden;
+        border: 1px solid rgba(23, 32, 29, 0.08);
+        background: var(--paper);
+        box-shadow: 0 30px 90px rgba(22, 36, 31, 0.24);
+      }
+
+      .screen {
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px 16px 92px;
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .brand-lockup {
+        width: 46px;
+        height: 46px;
+        padding: 3px;
+        border: 1px solid rgba(22, 106, 76, 0.14);
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 8px 18px rgba(23, 32, 29, 0.06);
+      }
+
+      .brand-lockup img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+      }
+
+      .topbar .profile {
+        justify-self: end;
+      }
+
+      .brand-copy {
+        min-width: 0;
+      }
+
+      .icon-button,
+      .profile {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(23, 32, 29, 0.08);
+      }
+
+      .icon-button svg,
+      .quick-icon svg {
+        display: block;
+        margin: auto;
+      }
+
+      .profile {
+        width: auto;
+        min-width: 76px;
+        padding: 0 13px;
+        color: #fff;
+        background: var(--green);
+        font-weight: 900;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 20px;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        font-size: 15px;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 226px;
+        margin-top: 18px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e5f5ec, #dceefa);
+        border: 1px solid rgba(22, 106, 76, 0.12);
+      }
+
+      .hero-copy {
+        position: relative;
+        z-index: 2;
+        padding: 18px;
+      }
+
+      .hero-copy p {
+        color: #40534c;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .hero-copy strong {
+        display: block;
+        max-width: 210px;
+        margin-top: 5px;
+        font-size: 34px;
+        line-height: 1.05;
+      }
+
+      .hero-copy small {
+        display: block;
+        max-width: 230px;
+        margin-top: 8px;
+        color: #4f625b;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .hero-art {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .map-land {
+        fill: #cdebdc;
+      }
+
+      .road {
+        fill: none;
+        stroke: #f4f0dd;
+        stroke-width: 20;
+        stroke-linecap: round;
+      }
+
+      .route {
+        fill: none;
+        stroke: var(--blue);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 9 10;
+      }
+
+      .building {
+        fill: #ffffff;
+        stroke: #c9ddd4;
+        stroke-width: 2;
+      }
+
+      .tree {
+        fill: var(--green-2);
+      }
+
+      .stamp-mark {
+        fill: #fff;
+        stroke: var(--coral);
+        stroke-width: 4;
+      }
+
+      .stamp-inner {
+        fill: var(--coral);
+      }
+
+      .bus {
+        fill: #397ca8;
+      }
+
+      .cup {
+        fill: #f5b94f;
+      }
+
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .metric,
+      .card,
+      .mission,
+      .rank-row,
+      .reward,
+      .post,
+      .verify-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--card);
+      }
+
+      .metric {
+        min-width: 0;
+        padding: 12px 10px;
+      }
+
+      .metric span,
+      .stamp-label,
+      .mission small,
+      .rank-row small,
+      .reward small,
+      .post small,
+      .verify-box small {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 22px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 22px 0 10px;
+      }
+
+      .section-title button {
+        min-height: 34px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 12px;
+        background: #e7f1ed;
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .stamp-track {
+        padding: 14px;
+      }
+
+      .stamp-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .stamp-head strong {
+        font-size: 17px;
+      }
+
+      .stamp-row {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .stamp {
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border: 1px dashed #b9cac2;
+        border-radius: 50%;
+        color: #92a19b;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .stamp.done {
+        border-style: solid;
+        border-color: var(--green);
+        background: var(--green);
+        color: #fff;
+      }
+
+      .mission-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .mission {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        width: 100%;
+        padding: 13px;
+        color: inherit;
+        text-align: left;
+      }
+
+      .mission.completed {
+        border-color: rgba(22, 106, 76, 0.26);
+        background: #f3fbf6;
+      }
+
+      .quick-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #edf4f1;
+        color: var(--green);
+      }
+
+      .mission b {
+        display: block;
+        font-size: 15px;
+      }
+
+      .mission em {
+        color: var(--coral);
+        font-style: normal;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .primary-action {
+        width: 100%;
+        min-height: 52px;
+        margin-top: 14px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--green);
+        color: #fff;
+        font-weight: 900;
+      }
+
+      .split-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .split-actions button {
+        min-height: 48px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: 900;
+      }
+
+      .split-actions button:first-child {
+        background: var(--blue);
+      }
+
+      .split-actions button:last-child {
+        background: var(--coral);
+      }
+
+      .duo-unit {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 78px;
+        gap: 14px;
+        align-items: center;
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #1f8f5f, #53b95d);
+        color: #ffffff;
+        box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.12);
+      }
+
+      .unit-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .duo-unit h2 {
+        margin-top: 5px;
+        font-size: 22px;
+        line-height: 1.15;
+      }
+
+      .duo-unit p {
+        margin-top: 7px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .unit-rank {
+        min-height: 76px;
+        border: 0;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+        box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.12);
+      }
+
+      .unit-rank span,
+      .unit-rank small {
+        display: block;
+      }
+
+      .unit-rank span {
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .unit-rank small {
+        margin-top: 2px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .duo-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .duo-stats article {
+        min-width: 0;
+        padding: 10px 9px;
+        border: 2px solid #e3ebe6;
+        border-radius: 8px;
+        background: #ffffff;
+        text-align: center;
+        box-shadow: inset 0 -3px 0 #e8eee9;
+      }
+
+      .duo-stats span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .duo-stats strong {
+        display: block;
+        margin-top: 3px;
+        color: var(--green);
+        font-size: 19px;
+      }
+
+      .duo-stamp-track {
+        margin-top: 12px;
+        box-shadow: inset 0 -3px 0 #e7eee9;
+      }
+
+      .path-shell {
+        position: relative;
+        min-height: 990px;
+        margin-top: 18px;
+        padding: 6px 0 18px;
+      }
+
+      .path-rail {
+        position: absolute;
+        top: 40px;
+        bottom: 90px;
+        left: 50%;
+        width: 18px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle, #b6d4c7 0 36%, transparent 38%) 0 0 / 18px 34px;
+        transform: translateX(-50%);
+        opacity: 0.85;
+      }
+
+      .path-list {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 17px;
+        padding: 6px 0;
+      }
+
+      .path-list .mission {
+        width: 106px;
+        height: 106px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        justify-self: center;
+        gap: 7px;
+        margin: 0;
+        padding: 12px;
+        border: 0;
+        border-radius: 50%;
+        background: #25a867;
+        color: #ffffff;
+        text-align: center;
+        box-shadow:
+          inset 0 -7px 0 rgba(0, 0, 0, 0.16),
+          0 12px 24px rgba(23, 32, 29, 0.16);
+      }
+
+      .path-list .mission:nth-child(odd) {
+        justify-self: start;
+        margin-left: 42px;
+      }
+
+      .path-list .mission:nth-child(even) {
+        justify-self: end;
+        margin-right: 42px;
+      }
+
+      .path-list .mission.completed {
+        background: #f4b84a;
+        color: #4a3210;
+      }
+
+      .path-list .mission.locked {
+        background: #d9e3de;
+        color: #71827a;
+        box-shadow: inset 0 -7px 0 #c6d2cc;
+      }
+
+      .path-list .quick-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.24);
+        color: currentColor;
+      }
+
+      .path-copy {
+        display: grid;
+        gap: 2px;
+      }
+
+      .path-copy b {
+        display: block;
+        font-size: 12px;
+        line-height: 1.15;
+      }
+
+      .path-copy small {
+        color: currentColor;
+        font-size: 11px;
+        font-weight: 900;
+        opacity: 0.82;
+      }
+
+      .path-list .mission em {
+        min-width: 42px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        color: currentColor;
+        font-size: 11px;
+        line-height: 1.15;
+      }
+
+      .treasure-node {
+        position: relative;
+        z-index: 1;
+        width: 150px;
+        min-height: 68px;
+        display: grid;
+        gap: 2px;
+        margin: 18px auto 0;
+        border: 0;
+        border-radius: 8px;
+        background: #fff4d8;
+        color: #7d4e0f;
+        box-shadow:
+          inset 0 -5px 0 rgba(160, 95, 17, 0.16),
+          0 10px 22px rgba(23, 32, 29, 0.12);
+      }
+
+      .treasure-node span {
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .treasure-node strong {
+        font-size: 14px;
+      }
+
+      .duo-actions {
+        margin-top: 4px;
+      }
+
+      .insight-stack {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .impact-panel,
+      .nudge-panel,
+      .campaign-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: inset 0 -3px 0 #e8eee9;
+      }
+
+      .impact-panel {
+        padding: 14px;
+      }
+
+      .impact-head,
+      .campaign-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .impact-head strong {
+        display: block;
+        margin-top: 3px;
+        color: var(--green);
+        font-size: 22px;
+      }
+
+      .impact-source,
+      .campaign-pill {
+        flex-shrink: 0;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #eaf3ee;
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .impact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .impact-grid article {
+        min-width: 0;
+        padding: 9px;
+        border: 1px solid #e2ebe6;
+        border-radius: 8px;
+        background: #f9fcfa;
+      }
+
+      .impact-grid span,
+      .nudge-copy small,
+      .campaign-panel small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .impact-grid b {
+        display: block;
+        margin-top: 4px;
+        font-size: 15px;
+      }
+
+      .impact-bars {
+        display: grid;
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .impact-bar {
+        display: grid;
+        grid-template-columns: 72px 1fr 42px;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .impact-bar .progress {
+        height: 7px;
+      }
+
+      .impact-bar em {
+        color: var(--ink);
+        font-style: normal;
+      }
+
+      .impact-note {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      .nudge-panel {
+        display: grid;
+        grid-template-columns: 42px 1fr auto;
+        gap: 11px;
+        align-items: center;
+        padding: 12px;
+      }
+
+      .nudge-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #e6f2fb;
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .nudge-copy {
+        min-width: 0;
+      }
+
+      .nudge-copy strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 14px;
+      }
+
+      .nudge-panel button,
+      .campaign-panel button {
+        min-height: 36px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--green);
+        color: #ffffff;
+        font-weight: 900;
+      }
+
+      .nudge-panel button {
+        min-width: 64px;
+        padding: 0 12px;
+      }
+
+      .campaign-panel {
+        margin-top: 14px;
+        padding: 14px;
+      }
+
+      .campaign-panel h3 {
+        margin-top: 6px;
+      }
+
+      .campaign-panel p {
+        margin-top: 6px;
+        color: #3f4c47;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .campaign-foot {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .campaign-foot .bar {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e3ece7;
+      }
+
+      .campaign-foot .bar span {
+        display: block;
+        width: var(--w);
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--green-2), var(--gold));
+      }
+
+      .campaign-panel button {
+        min-width: 112px;
+        padding: 0 13px;
+      }
+
+      .view-header {
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+        text-align: center;
+      }
+
+      .back {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 28px;
+        line-height: 1;
+        box-shadow: 0 8px 18px rgba(23, 32, 29, 0.08);
+      }
+
+      .verify-box {
+        margin-top: 18px;
+        padding: 16px;
+      }
+
+      .verify-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .scan-frame {
+        position: relative;
+        height: 220px;
+        margin-top: 14px;
+        overflow: hidden;
+        border: 1px solid #c9ddd4;
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(22, 106, 76, 0.13), transparent),
+          #f8fbf7;
+      }
+
+      .receipt {
+        position: absolute;
+        left: 34px;
+        top: 34px;
+        width: 124px;
+        height: 156px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 16px 28px rgba(23, 32, 29, 0.14);
+        transform: rotate(-8deg);
+      }
+
+      .receipt span {
+        display: block;
+        height: 8px;
+        margin: 18px 18px 0;
+        border-radius: 99px;
+        background: #dce5e0;
+      }
+
+      .scan-cup {
+        position: absolute;
+        right: 46px;
+        bottom: 32px;
+        width: 92px;
+        height: 120px;
+        border-radius: 10px 10px 28px 28px;
+        background: linear-gradient(#f3be5f, #ef755f);
+        box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.2);
+      }
+
+      .scan-line {
+        position: absolute;
+        right: 22px;
+        left: 22px;
+        top: 52%;
+        height: 3px;
+        border-radius: 99px;
+        background: var(--green-2);
+        box-shadow: 0 0 18px rgba(47, 152, 113, 0.75);
+      }
+
+      .progress {
+        flex: 1;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: #e3ece7;
+      }
+
+      .progress span {
+        display: block;
+        width: var(--w);
+        height: 100%;
+        border-radius: inherit;
+        background: var(--green-2);
+      }
+
+      .rank-list,
+      .reward-list,
+      .post-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .rank-row {
+        display: grid;
+        grid-template-columns: 38px 1fr auto;
+        gap: 11px;
+        align-items: center;
+        padding: 13px;
+      }
+
+      .rank-number {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #edf4f1;
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      .rank-row.me {
+        border-color: rgba(244, 184, 74, 0.6);
+        background: #fff9ea;
+      }
+
+      .rank-row strong,
+      .reward strong,
+      .post strong {
+        display: block;
+      }
+
+      .rank-row em {
+        color: var(--green);
+        font-style: normal;
+        font-weight: 900;
+      }
+
+      .challenge-card {
+        margin-top: 18px;
+        padding: 16px;
+        background: linear-gradient(135deg, #f1f9f5, #e6f2fb);
+      }
+
+      .challenge-card .bar {
+        height: 12px;
+        overflow: hidden;
+        margin-top: 14px;
+        border-radius: 99px;
+        background: rgba(57, 124, 168, 0.16);
+      }
+
+      .challenge-card .bar span {
+        display: block;
+        width: 72%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--green-2), var(--blue));
+      }
+
+      .reward {
+        display: grid;
+        grid-template-columns: 46px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 13px;
+      }
+
+      .reward-badge {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #fff1df;
+        color: #9a5b11;
+        font-weight: 900;
+      }
+
+      .reward button {
+        min-width: 72px;
+        min-height: 36px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--green);
+        color: #fff;
+        font-weight: 900;
+      }
+
+      .reward.claimed {
+        opacity: 0.7;
+      }
+
+      .post {
+        padding: 14px;
+      }
+
+      .post p {
+        margin-top: 8px;
+        color: #3f4c47;
+        line-height: 1.5;
+      }
+
+      .post-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+      }
+
+      .post-foot button {
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        background: #eef5f1;
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      .bottom-nav {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 74px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--line);
+        background: rgba(251, 251, 245, 0.97);
+      }
+
+      .bottom-nav button {
+        border: 0;
+        background: transparent;
+        color: #7a8882;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .bottom-nav button.active {
+        color: var(--green);
+      }
+
+      .nav-icon {
+        display: block;
+        width: 7px;
+        height: 7px;
+        margin: 0 auto 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.55;
+      }
+
+      .toast {
+        position: absolute;
+        right: 18px;
+        bottom: 86px;
+        left: 18px;
+        display: none;
+        padding: 13px 15px;
+        border-radius: 8px;
+        background: #17201d;
+        color: #fff;
+        font-weight: 800;
+        text-align: center;
+        box-shadow: 0 16px 34px rgba(23, 32, 29, 0.2);
+      }
+
+      .toast.show {
+        display: block;
+      }
+
+      @media (max-width: 430px) {
+        body {
+          display: block;
+          background: var(--paper);
+        }
+
+        .phone {
+          width: 100vw;
+          height: 100vh;
+          border: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone" aria-label="treegger 앱 데모">
+      <section class="screen view active" data-view="home">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <img src="./logo.png" alt="treegger 로고" />
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">서교동 그린리그</p>
+            <h1>treegger</h1>
+          </div>
+          <button class="profile" type="button">18도장</button>
+        </header>
+
+        <section class="duo-unit" aria-label="오늘의 친환경 챌린지">
+          <div>
+            <span class="unit-label">서교동 챌린지 · 오늘의 도장</span>
+            <h2 id="heroMission">활동 3개 완료하고 도장 받기</h2>
+            <p id="heroSub">8개 활동 중 3개 이상 인증하면 도장 1개</p>
+          </div>
+          <button class="unit-rank" type="button" data-go="rank">
+            <span id="myRank">2위</span>
+            <small>리그</small>
+          </button>
+        </section>
+
+        <section class="duo-stats" aria-label="나의 참여 현황">
+          <article><span>오늘 활동</span><strong id="activityCount">0/8</strong></article>
+          <article><span>연속</span><strong id="streak">6일</strong></article>
+          <article><span>누적 도장</span><strong id="totalStamps">18</strong></article>
+        </section>
+
+        <section class="card stamp-track duo-stamp-track">
+          <div class="stamp-head">
+            <div>
+              <span class="stamp-label">이번 주 도장</span>
+              <strong>7일 중 <span id="weekDone">4</span>일 완료</strong>
+            </div>
+            <span class="stamp-label" id="stampProgress">도장까지 3개</span>
+          </div>
+          <div class="stamp-row" id="stampRow"></div>
+        </section>
+
+        <section class="insight-stack" aria-label="개인 환경 기여와 추천">
+          <section class="impact-panel" aria-label="개인 환경 기여도">
+            <div class="impact-head">
+              <div>
+                <span class="stamp-label">개인 환경 기여도</span>
+                <strong id="impactCarbon">4.6kgCO2e</strong>
+              </div>
+              <span class="impact-source">안내서 참고 추정</span>
+            </div>
+            <div class="impact-grid">
+              <article><span>탄소 참고 효과</span><b id="impactCarbonSmall">4.6kg</b></article>
+              <article><span>일회용컵 절감</span><b id="impactCups">11개</b></article>
+              <article><span>종이영수증 절감</span><b id="impactPaper">7장</b></article>
+            </div>
+            <div class="impact-bars" aria-label="기여도 항목별 진행">
+              <div class="impact-bar"><span>탄소</span><div class="progress"><span id="carbonBar" style="--w: 36%"></span></div><em id="carbonPct">36%</em></div>
+              <div class="impact-bar"><span>일회용컵</span><div class="progress"><span id="cupBar" style="--w: 55%"></span></div><em id="cupPct">55%</em></div>
+              <div class="impact-bar"><span>종이</span><div class="progress"><span id="paperBar" style="--w: 35%"></span></div><em id="paperPct">35%</em></div>
+            </div>
+            <p class="impact-note">탄소중립 생활 실천 안내서(가정편)의 생활 실천 항목을 참고한 데모 추정치입니다. 실제 서비스에서는 공인 계수와 활동 거리, 사용 횟수로 다시 산정합니다.</p>
+          </section>
+
+          <section class="nudge-panel" aria-label="AI 기반 맞춤형 넛지">
+            <span class="nudge-icon">AI</span>
+            <div class="nudge-copy">
+              <small>맞춤 넛지</small>
+              <strong id="nudgeTitle">오늘은 전자영수증부터</strong>
+            </div>
+            <button type="button" data-action="nudge">추천</button>
+          </section>
+        </section>
+
+        <section class="path-shell" aria-label="오늘 가능한 인증 경로">
+          <div class="path-rail" aria-hidden="true"></div>
+          <section class="mission-list path-list" id="missionList"></section>
+          <button class="treasure-node" type="button" data-go="reward">
+            <span>상자</span>
+            <strong>보너스 리워드</strong>
+          </button>
+        </section>
+
+        <section class="split-actions duo-actions">
+          <button type="button" data-action="auto">자동 활동 인증</button>
+          <button type="button" data-go="verify">사진 인증</button>
+        </section>
+      </section>
+
+      <section class="screen view" data-view="verify">
+        <header class="view-header">
+          <button class="back" type="button" data-go="home" aria-label="뒤로">‹</button>
+          <h2>사진 인증</h2>
+          <span></span>
+        </header>
+        <section class="verify-box">
+          <h3 id="verifyTitle">텀블러 + 영수증</h3>
+          <small id="aiStatus">AI 검토 준비됨</small>
+          <div class="scan-frame" aria-label="사진 인증 예시">
+            <div class="receipt"><span></span><span></span><span></span><span></span></div>
+            <div class="scan-cup"></div>
+            <div class="scan-line"></div>
+          </div>
+          <div class="verify-status">
+            <div class="progress"><span id="verifyProgress" style="--w: 18%"></span></div>
+            <small id="verifyText">대기 중</small>
+          </div>
+          <button class="primary-action" type="button" data-action="photo">AI 사진 인증 제출</button>
+        </section>
+      </section>
+
+      <section class="screen view" data-view="rank">
+        <header class="view-header">
+          <button class="back" type="button" data-go="home" aria-label="뒤로">‹</button>
+          <h2>동네 랭킹</h2>
+          <span></span>
+        </header>
+        <section class="card challenge-card">
+          <h3>마포구 대항전</h3>
+          <p class="eyebrow">서교동 184도장 · 합정동 추격 중</p>
+          <div class="bar"><span></span></div>
+        </section>
+        <section class="rank-list" id="rankList"></section>
+      </section>
+
+      <section class="screen view" data-view="reward">
+        <header class="view-header">
+          <button class="back" type="button" data-go="home" aria-label="뒤로">‹</button>
+          <h2>리워드</h2>
+          <span></span>
+        </header>
+        <section class="panel-grid">
+          <article class="metric"><span>보유 도장</span><strong id="rewardStamps">18</strong></article>
+          <article class="metric"><span>활동 종류</span><strong id="activityTypes">8개</strong></article>
+          <article class="metric"><span>인증 활동</span><strong id="activityDone">18회</strong></article>
+        </section>
+        <section class="campaign-panel" aria-label="캠페인 특별 리워드">
+          <div class="campaign-top">
+            <div>
+              <small>이번 주 특별 캠페인</small>
+              <h3 id="campaignTitle">일회용컵 없는 3일</h3>
+            </div>
+            <span class="campaign-pill" id="campaignProgress">2/3일</span>
+          </div>
+          <p id="campaignText">텀블러 인증을 한 번 더 완료하면 캠페인 달성자로 특별 도장 1개를 받을 수 있어요.</p>
+          <div class="campaign-foot">
+            <div class="bar" aria-hidden="true"><span id="campaignBar" style="--w: 67%"></span></div>
+            <button type="button" data-action="campaign" id="campaignButton">참여하기</button>
+          </div>
+        </section>
+        <section class="reward-list" id="rewardList"></section>
+      </section>
+
+      <section class="screen view" data-view="community">
+        <header class="view-header">
+          <button class="back" type="button" data-go="home" aria-label="뒤로">‹</button>
+          <h2>커뮤니티</h2>
+          <span></span>
+        </header>
+        <section class="post-list" id="postList"></section>
+      </section>
+
+      <nav class="bottom-nav" aria-label="앱 메뉴">
+        <button class="active" type="button" data-go="home"><span class="nav-icon"></span>홈</button>
+        <button type="button" data-go="verify"><span class="nav-icon"></span>인증</button>
+        <button type="button" data-go="rank"><span class="nav-icon"></span>랭킹</button>
+        <button type="button" data-go="reward"><span class="nav-icon"></span>리워드</button>
+        <button type="button" data-go="community"><span class="nav-icon"></span>동네</button>
+      </nav>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <script>
+      const state = {
+        stampThreshold: 3,
+        totalStamps: 18,
+        todayStamped: false,
+        streak: 6,
+        weekDone: 4,
+        activitiesDone: 18,
+        liked: false,
+        pendingPhotoMission: "tumbler",
+        impactBase: { carbonKg: 4.6, cups: 11, paperReceipts: 7 },
+        campaign: {
+          title: "일회용컵 없는 3일",
+          baseProgress: 2,
+          goal: 3,
+          rewardStamps: 1,
+          claimed: false
+        },
+        missions: [
+          { id: "walk", name: "8천보", note: "스마트폰 걸음 수 자동 연동", auth: "자동", done: false, type: "auto", impact: { carbonKg: 0.25, cups: 0, paperReceipts: 0 } },
+          { id: "transit", name: "대중교통", note: "교통 이용 내역 인증", auth: "자동", done: false, type: "auto", impact: { carbonKg: 0.55, cups: 0, paperReceipts: 0 } },
+          { id: "receipt", name: "전자영수증", note: "알림 기록 자동 확인", auth: "자동", done: false, type: "auto", impact: { carbonKg: 0.02, cups: 0, paperReceipts: 1 } },
+          { id: "tumbler", name: "텀블러", note: "영수증과 텀블러 사진 제출", auth: "사진", done: false, type: "photo", impact: { carbonKg: 0.08, cups: 1, paperReceipts: 0 } },
+          { id: "recycle", name: "분리배출", note: "분리배출 사진 인증", auth: "사진", done: false, type: "photo", impact: { carbonKg: 0.12, cups: 1, paperReceipts: 0 } },
+          { id: "secondhand", name: "중고거래", note: "중고 거래 후기 캡처", auth: "사진", done: false, type: "photo", impact: { carbonKg: 1.2, cups: 0, paperReceipts: 0 } },
+          { id: "barcode", name: "친환경 제품", note: "친환경 제품 바코드 스캔", auth: "스캔", done: false, type: "photo", impact: { carbonKg: 0.08, cups: 0, paperReceipts: 0 } },
+          { id: "unplug", name: "플러그 OFF", note: "대기전력 줄이기 사진 인증", auth: "사진", done: false, type: "photo", impact: { carbonKg: 0.2, cups: 0, paperReceipts: 0 } }
+        ],
+        ranks: [
+          { area: "합정동", stamps: 191 },
+          { area: "서교동", stamps: 184, me: true },
+          { area: "상수동", stamps: 173 },
+          { area: "연남동", stamps: 168 },
+          { area: "망원동", stamps: 151 }
+        ],
+        rewards: [
+          { title: "제로웨이스트샵 할인권", cost: 6, tag: "지역 상점" },
+          { title: "공유 컵 카페 쿠폰", cost: 10, tag: "선착순" },
+          { title: "마포구 그린 배지", cost: 4, tag: "프로필" },
+          { title: "캠페인 달성 특별 쿠폰", cost: 12, tag: "지자체 연계" }
+        ],
+        posts: [
+          { name: "서교동 민지", body: "오늘 카페에서 텀블러 인증 완료. 스탬프 하나로 동네 순위가 바로 올라가니까 묘하게 계속 하게 돼요.", likes: 18 },
+          { name: "합정동 준호", body: "전자영수증 자동 인증은 진짜 편하네요. 따로 사진 안 찍어도 오늘 활동 수에 바로 반영됐습니다.", likes: 11 },
+          { name: "상수동 유나", body: "이번 주 7일 연속 보너스 노리는 중. 저녁 산책 미션 같이 하실 분?", likes: 24 }
+        ]
+      };
+
+      const icons = {
+        walk: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 5.1a2.1 2.1 0 1 0-2.8-3.1 2.1 2.1 0 0 0 2.8 3.1Zm-2 2.1-2.8 3.3-3.2.8.5 2 4-.9 1.4-1.7.4 3.2-2 3.3-3.2 2.1 1.1 1.8 3.6-2.3 2.4-3.9 1.8 1.9 1.2 4.1 2.1-.6-1.4-4.7-3.1-3.4-.3-2.3 1.9 1.5 2.8.8.6-2-2.3-.7-3-2.4a2.7 2.7 0 0 0-3.5.1Z" fill="currentColor"/></svg>',
+        transit: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5C6 3.1 8.7 2 12 2s6 1.1 6 2.5V15a3 3 0 0 1-3 3l1.4 2H14l-.7-1h-2.6l-.7 1H7.6L9 18a3 3 0 0 1-3-3V4.5Zm2 1.8V10h8V6.3H8Zm1.2 8.9a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Zm5.6 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6Z" fill="currentColor"/></svg>',
+        receipt: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v20l-2.2-1.4-2.1 1.4-2.1-1.4L9.5 22l-2.1-1.4L6 22V2Zm3.3 5.3v1.8h5.4V7.3H9.3Zm0 4v1.8h7.4v-1.8H9.3Zm0 4v1.8h4.5v-1.8H9.3Z" fill="currentColor"/></svg>',
+        tumbler: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10l-.9 18H7.9L7 3Zm2.2 2 .2 3h5.2l.2-3H9.2Zm.3 5 .5 9h4l.5-9h-5Z" fill="currentColor"/></svg>',
+        recycle: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="m8.7 3.3 2.6 4.5H8.6L6.8 11 3.7 5.7 6 1.8l2.7 1.5Zm6.9 1.5 4.5 7.8-2.8 1.6-1.4-2.4-1.5 2.6-2.8-1.6 3.2-5.5-1.4-2.5h2.2ZM7.9 14.5h6.4l1.5-2.6 3.1 5.4-2.2 3.9H8.1v-3.2H11l-1.6-2.7-1.5 2.6-2.8-1.6 2.8-4.8Z" fill="currentColor"/></svg>',
+        secondhand: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.7 4 12 6.1 15.3 4 20 7.2l-2.2 3-1.7-.9V21H7.9V9.3l-1.7.9-2.2-3L8.7 4Zm1.1 2.6A3 3 0 0 0 12 7.5a3 3 0 0 0 2.2-.9L12 8l-2.2-1.4Z" fill="currentColor"/></svg>',
+        barcode: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4V4Zm2.2 2.2v11.6h11.6V6.2H6.2Zm1.6 1.6h1.1v8.4H7.8V7.8Zm2.1 0h2v8.4h-2V7.8Zm3 0H14v8.4h-1.1V7.8Zm2.1 0h1.2v8.4H15V7.8Z" fill="currentColor"/></svg>',
+        unplug: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h2v5h4V2h2v5h1.5v4.5A5.5 5.5 0 0 1 13 16.9V22h-2v-5.1a5.5 5.5 0 0 1-4.5-5.4V7H8V2Zm.5 7v2.5a3.5 3.5 0 0 0 7 0V9h-7Z" fill="currentColor"/></svg>'
+      };
+
+      const missionList = document.getElementById("missionList");
+      const stampRow = document.getElementById("stampRow");
+      const rankList = document.getElementById("rankList");
+      const rewardList = document.getElementById("rewardList");
+      const postList = document.getElementById("postList");
+      const toast = document.getElementById("toast");
+
+      function formatNumber(value) {
+        return value.toLocaleString("ko-KR");
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1500);
+      }
+
+      function showView(name) {
+        document.querySelectorAll(".view").forEach((view) => {
+          view.classList.toggle("active", view.dataset.view === name);
+        });
+        document.querySelectorAll(".bottom-nav button").forEach((button) => {
+          button.classList.toggle("active", button.dataset.go === name);
+        });
+      }
+
+      function completedTodayCount() {
+        return state.missions.filter((mission) => mission.done).length;
+      }
+
+      function remainingForStamp() {
+        return Math.max(0, state.stampThreshold - completedTodayCount());
+      }
+
+      function calculateImpact() {
+        return state.missions.reduce((total, mission) => {
+          if (!mission.done) return total;
+          total.carbonKg += mission.impact.carbonKg;
+          total.cups += mission.impact.cups;
+          total.paperReceipts += mission.impact.paperReceipts;
+          return total;
+        }, { ...state.impactBase });
+      }
+
+      function impactPercent(value, goal) {
+        return Math.min(100, Math.round((value / goal) * 100));
+      }
+
+      function campaignProgress() {
+        const tumblerDone = state.missions.some((mission) => mission.id === "tumbler" && mission.done);
+        return Math.min(state.campaign.goal, state.campaign.baseProgress + (tumblerDone ? 1 : 0));
+      }
+
+      function preferredNudgeMission() {
+        const priority = ["receipt", "transit", "tumbler", "walk", "unplug", "secondhand", "barcode", "recycle"];
+        return priority.map((id) => state.missions.find((mission) => mission.id === id && !mission.done)).find(Boolean);
+      }
+
+      function updateVerifyTarget(mission) {
+        state.pendingPhotoMission = mission.id;
+        document.getElementById("verifyTitle").textContent = mission.name + " 인증";
+        document.getElementById("aiStatus").textContent = mission.note;
+        document.getElementById("verifyText").textContent = "대기 중";
+        document.getElementById("verifyProgress").style.setProperty("--w", "18%");
+      }
+
+      function completeMission(id) {
+        const mission = state.missions.find((item) => item.id === id);
+        if (!mission || mission.done) {
+          showToast("이미 인증된 미션입니다");
+          return;
+        }
+
+        mission.done = true;
+        state.activitiesDone += 1;
+
+        const earnedStamp = !state.todayStamped && completedTodayCount() >= state.stampThreshold;
+        if (earnedStamp) {
+          state.todayStamped = true;
+          state.totalStamps += 1;
+          state.streak += 1;
+          state.weekDone = Math.min(7, state.weekDone + 1);
+        }
+
+        if (mission.type === "photo") {
+          document.getElementById("aiStatus").textContent = "AI 검토 완료";
+          document.getElementById("verifyText").textContent = "인증 승인";
+          document.getElementById("verifyProgress").style.setProperty("--w", "100%");
+        }
+
+        render();
+        showToast(earnedStamp ? "오늘 도장 1개 획득!" : mission.name + " 완료 · 도장까지 " + remainingForStamp() + "개");
+      }
+
+      function handleNudgeAction() {
+        const target = preferredNudgeMission();
+        if (!target) {
+          showToast("오늘 가능한 활동을 모두 완료했어요");
+          return;
+        }
+
+        if (target.type === "photo") {
+          updateVerifyTarget(target);
+          showView("verify");
+          showToast(target.name + " 인증을 추천해요");
+          return;
+        }
+
+        completeMission(target.id);
+      }
+
+      function handleCampaignAction() {
+        const progress = campaignProgress();
+        if (state.campaign.claimed) {
+          showToast("이미 특별 도장을 받았습니다");
+          return;
+        }
+
+        if (progress < state.campaign.goal) {
+          const tumbler = state.missions.find((mission) => mission.id === "tumbler");
+          if (tumbler && !tumbler.done) {
+            updateVerifyTarget(tumbler);
+            showView("verify");
+            showToast("텀블러 인증까지 완료하면 캠페인 달성입니다");
+            return;
+          }
+          showToast("캠페인 활동을 하나 더 채워주세요");
+          return;
+        }
+
+        state.campaign.claimed = true;
+        state.totalStamps += state.campaign.rewardStamps;
+        render();
+        showToast("캠페인 특별 도장 1개 지급!");
+      }
+
+      function renderMissions() {
+        missionList.innerHTML = state.missions.map((mission) => {
+          const action = mission.done ? "완료" : mission.auth;
+          return '<button class="mission ' + (mission.done ? "completed" : "") + '" type="button" data-mission="' + mission.id + '" aria-label="' + mission.name + '">' +
+            '<span class="quick-icon">' + icons[mission.id] + '</span>' +
+            '<span class="path-copy"><b>' + mission.name + '</b><small>' + (mission.done ? "인증됨" : mission.auth + " 인증") + '</small></span>' +
+            '<em>' + action + '</em>' +
+          '</button>';
+        }).join("");
+      }
+
+      function renderStamps() {
+        const labels = ["월", "화", "수", "목", "금", "토", "일"];
+        stampRow.innerHTML = labels.map((label, index) => {
+          return '<span class="stamp ' + (index < state.weekDone ? "done" : "") + '">' + label + '</span>';
+        }).join("");
+      }
+
+      function renderRanks() {
+        rankList.innerHTML = state.ranks.map((rank, index) => {
+          return '<article class="rank-row ' + (rank.me ? "me" : "") + '">' +
+            '<span class="rank-number">' + (index + 1) + '</span>' +
+            '<span><strong>' + rank.area + '</strong><small>' + (rank.me ? "우리 동네" : "이번 주 참여자") + '</small></span>' +
+            '<em>' + formatNumber(rank.stamps) + '도장</em>' +
+          '</article>';
+        }).join("");
+      }
+
+      function renderImpact() {
+        const impact = calculateImpact();
+        const carbon = impact.carbonKg.toFixed(1);
+        const carbonPercent = impactPercent(impact.carbonKg, 12);
+        const cupPercent = impactPercent(impact.cups, 20);
+        const paperPercent = impactPercent(impact.paperReceipts, 20);
+
+        document.getElementById("impactCarbon").textContent = carbon + "kgCO2e";
+        document.getElementById("impactCarbonSmall").textContent = carbon + "kg";
+        document.getElementById("impactCups").textContent = formatNumber(impact.cups) + "개";
+        document.getElementById("impactPaper").textContent = formatNumber(impact.paperReceipts) + "장";
+        document.getElementById("carbonBar").style.setProperty("--w", carbonPercent + "%");
+        document.getElementById("cupBar").style.setProperty("--w", cupPercent + "%");
+        document.getElementById("paperBar").style.setProperty("--w", paperPercent + "%");
+        document.getElementById("carbonPct").textContent = carbonPercent + "%";
+        document.getElementById("cupPct").textContent = cupPercent + "%";
+        document.getElementById("paperPct").textContent = paperPercent + "%";
+      }
+
+      function renderNudge() {
+        const target = preferredNudgeMission();
+        const title = target
+          ? "오늘은 " + target.name + " 인증 추천"
+          : "오늘의 8개 활동을 모두 채웠어요";
+        document.getElementById("nudgeTitle").textContent = state.todayStamped
+          ? "도장 완료 · 내일은 " + (target ? target.name : "새 미션") + " 추천"
+          : title;
+      }
+
+      function renderCampaign() {
+        const progress = campaignProgress();
+        const percent = Math.round((progress / state.campaign.goal) * 100);
+        const completed = progress >= state.campaign.goal;
+        const button = document.getElementById("campaignButton");
+
+        document.getElementById("campaignTitle").textContent = state.campaign.title;
+        document.getElementById("campaignProgress").textContent = progress + "/" + state.campaign.goal + "일";
+        document.getElementById("campaignBar").style.setProperty("--w", percent + "%");
+
+        if (state.campaign.claimed) {
+          document.getElementById("campaignText").textContent = "캠페인 달성 리워드가 지급됐어요. 다음 캠페인은 지역 제휴 쿠폰으로 이어집니다.";
+          button.textContent = "지급 완료";
+          return;
+        }
+
+        document.getElementById("campaignText").textContent = completed
+          ? "캠페인을 달성했어요. 특별 도장 1개를 받아 리워드 교환에 사용할 수 있습니다."
+          : "텀블러 인증을 한 번 더 완료하면 캠페인 달성자로 특별 도장 1개를 받을 수 있어요.";
+        button.textContent = completed ? "도장 받기" : "참여하기";
+      }
+
+      function renderRewards() {
+        rewardList.innerHTML = state.rewards.map((reward, index) => {
+          const canClaim = state.totalStamps >= reward.cost;
+          return '<article class="reward ' + (!canClaim ? "claimed" : "") + '">' +
+            '<span class="reward-badge">' + (index + 1) + '</span>' +
+            '<span><strong>' + reward.title + '</strong><small>' + reward.tag + ' · 도장 ' + formatNumber(reward.cost) + '개</small></span>' +
+            '<button type="button" data-reward="' + index + '">' + (canClaim ? "교환" : "부족") + '</button>' +
+          '</article>';
+        }).join("");
+      }
+
+      function renderPosts() {
+        postList.innerHTML = state.posts.map((post, index) => {
+          const likes = post.likes + (index === 0 && state.liked ? 1 : 0);
+          return '<article class="post">' +
+            '<strong>' + post.name + '</strong><small>동네 인증 피드</small>' +
+            '<p>' + post.body + '</p>' +
+            '<div class="post-foot"><small>공감 ' + likes + '</small><button type="button" data-like="' + index + '">공감</button></div>' +
+          '</article>';
+        }).join("");
+      }
+
+      function renderSummary() {
+        const completed = completedTodayCount();
+        const remaining = remainingForStamp();
+        document.getElementById("activityCount").textContent = completed + "/8";
+        document.getElementById("streak").textContent = state.streak + "일";
+        document.getElementById("weekDone").textContent = state.weekDone;
+        document.getElementById("stampProgress").textContent = state.todayStamped ? "오늘 도장 완료" : "도장까지 " + remaining + "개";
+        document.getElementById("rewardStamps").textContent = formatNumber(state.totalStamps);
+        document.getElementById("totalStamps").textContent = formatNumber(state.totalStamps);
+        document.querySelector(".profile").textContent = formatNumber(state.totalStamps) + "도장";
+        document.getElementById("activityTypes").textContent = state.missions.length + "개";
+        document.getElementById("activityDone").textContent = state.activitiesDone + "회";
+        document.getElementById("heroMission").textContent = state.todayStamped ? "오늘 도장 획득 완료" : "활동 3개 완료하고 도장 받기";
+        document.getElementById("heroSub").textContent = state.todayStamped ? "내일 다시 도장에 도전해요 · 동네 랭킹 반영" : completed + "/8 완료 · 도장까지 " + remaining + "개";
+      }
+
+      function render() {
+        renderMissions();
+        renderStamps();
+        renderRanks();
+        renderImpact();
+        renderNudge();
+        renderCampaign();
+        renderRewards();
+        renderPosts();
+        renderSummary();
+      }
+
+      document.addEventListener("click", (event) => {
+        const go = event.target.closest("[data-go]");
+        if (go) showView(go.dataset.go);
+
+        const mission = event.target.closest("[data-mission]");
+        if (mission) {
+          const id = mission.dataset.mission;
+          const selectedMission = state.missions.find((item) => item.id === id);
+          if (selectedMission?.type === "photo") {
+            updateVerifyTarget(selectedMission);
+            showView("verify");
+          } else {
+            completeMission(id);
+          }
+        }
+
+        const action = event.target.closest("[data-action]");
+        if (action?.dataset.action === "auto") {
+          const autoMissions = state.missions.filter((mission) => mission.type === "auto" && !mission.done).slice(0, 3);
+          if (autoMissions.length === 0) {
+            showToast("자동 인증 가능한 활동은 모두 완료됐습니다");
+          } else {
+            autoMissions.forEach((mission) => completeMission(mission.id));
+          }
+        }
+        if (action?.dataset.action === "nudge") {
+          handleNudgeAction();
+        }
+        if (action?.dataset.action === "campaign") {
+          handleCampaignAction();
+        }
+        if (action?.dataset.action === "photo") {
+          const mission = state.missions.find((item) => item.id === state.pendingPhotoMission) || state.missions.find((item) => item.type === "photo" && !item.done);
+          if (!mission) {
+            showToast("사진 인증 가능한 활동은 모두 완료됐습니다");
+            return;
+          }
+          state.pendingPhotoMission = mission.id;
+          document.getElementById("aiStatus").textContent = "AI 검토 중";
+          document.getElementById("verifyText").textContent = mission.note + " 확인 중";
+          document.getElementById("verifyProgress").style.setProperty("--w", "72%");
+          window.setTimeout(() => completeMission(mission.id), 650);
+        }
+
+        const reward = event.target.closest("[data-reward]");
+        if (reward) {
+          const item = state.rewards[Number(reward.dataset.reward)];
+          if (state.totalStamps >= item.cost) {
+            state.totalStamps -= item.cost;
+            render();
+            showToast(item.title + " 교환 완료");
+          } else {
+            showToast("도장이 조금 더 필요합니다");
+          }
+        }
+
+        const like = event.target.closest("[data-like]");
+        if (like) {
+          state.liked = true;
+          renderPosts();
+          showToast("동네 피드에 공감했습니다");
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>
