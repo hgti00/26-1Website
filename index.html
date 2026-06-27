@@ -704,7 +704,7 @@
 
       .impact-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
         margin-top: 12px;
       }
@@ -755,6 +755,64 @@
       .impact-bar em {
         color: var(--ink);
         font-style: normal;
+      }
+
+      .tree-equivalent {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+        padding: 11px;
+        border: 1px solid #dbe9e2;
+        border-radius: 8px;
+        background: #f2faf5;
+      }
+
+      .tree-equivalent strong {
+        display: block;
+        margin-top: 3px;
+        color: var(--green);
+        font-size: 16px;
+        line-height: 1.25;
+      }
+
+      .tree-equivalent p {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      .tree-meter {
+        display: flex;
+        gap: 4px;
+        align-items: flex-end;
+      }
+
+      .tree-meter span {
+        position: relative;
+        width: 12px;
+        height: 28px;
+        border-radius: 999px 999px 3px 3px;
+        background: #d9e7df;
+      }
+
+      .tree-meter span::after {
+        content: "";
+        position: absolute;
+        right: 3px;
+        bottom: -4px;
+        left: 3px;
+        height: 7px;
+        border-radius: 3px;
+        background: currentColor;
+        color: inherit;
+      }
+
+      .tree-meter span.active {
+        background: var(--green-2);
+        color: var(--green);
       }
 
       .impact-note {
@@ -1202,13 +1260,25 @@
               <article><span>탄소 참고 효과</span><b id="impactCarbonSmall">4.6kg</b></article>
               <article><span>일회용컵 절감</span><b id="impactCups">11개</b></article>
               <article><span>종이영수증 절감</span><b id="impactPaper">7장</b></article>
+              <article><span>나무 환산</span><b id="impactTrees">0.08그루·년</b></article>
             </div>
             <div class="impact-bars" aria-label="기여도 항목별 진행">
               <div class="impact-bar"><span>탄소</span><div class="progress"><span id="carbonBar" style="--w: 36%"></span></div><em id="carbonPct">36%</em></div>
               <div class="impact-bar"><span>일회용컵</span><div class="progress"><span id="cupBar" style="--w: 55%"></span></div><em id="cupPct">55%</em></div>
               <div class="impact-bar"><span>종이</span><div class="progress"><span id="paperBar" style="--w: 35%"></span></div><em id="paperPct">35%</em></div>
+              <div class="impact-bar"><span>나무</span><div class="progress"><span id="treeBar" style="--w: 8%"></span></div><em id="treePct">8%</em></div>
             </div>
-            <p class="impact-note">탄소중립 생활 실천 안내서(가정편)의 생활 실천 항목을 참고한 데모 추정치입니다. 실제 서비스에서는 공인 계수와 활동 거리, 사용 횟수로 다시 산정합니다.</p>
+            <div class="tree-equivalent" aria-label="나무 심기 효과 환산">
+              <div>
+                <span class="stamp-label">나무 심기 효과</span>
+                <strong id="treeEquivalent">나무 0.08그루·년 흡수량</strong>
+                <p id="treeEquivalentSub">나무 1그루가 약 28일 동안 흡수하는 양과 비슷해요.</p>
+              </div>
+              <div class="tree-meter" id="treeMeter" aria-hidden="true">
+                <span class="active"></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <p class="impact-note">탄소중립 생활 실천 안내서(가정편)의 생활 실천 항목을 참고한 데모 추정치입니다. 나무 환산은 EPA 도시 수목 1그루의 연평균 0.060t CO2 흡수량 기준입니다.</p>
           </section>
 
           <section class="nudge-panel" aria-label="AI 기반 맞춤형 넛지">
@@ -1330,6 +1400,7 @@
         liked: false,
         pendingPhotoMission: "tumbler",
         impactBase: { carbonKg: 4.6, cups: 11, paperReceipts: 7 },
+        treeAbsorptionKgPerYear: 60,
         campaign: {
           title: "일회용컵 없는 3일",
           baseProgress: 2,
@@ -1425,6 +1496,19 @@
 
       function impactPercent(value, goal) {
         return Math.min(100, Math.round((value / goal) * 100));
+      }
+
+      function formatTreeCount(value) {
+        if (value < 1) return value.toFixed(2);
+        if (value < 10) return value.toFixed(1);
+        return Math.round(value).toString();
+      }
+
+      function renderTreeMeter(treeYears) {
+        const filled = Math.max(1, Math.min(5, Math.ceil(treeYears * 5)));
+        document.getElementById("treeMeter").innerHTML = Array.from({ length: 5 }, (_, index) => {
+          return '<span class="' + (index < filled ? "active" : "") + '"></span>';
+        }).join("");
       }
 
       function campaignProgress() {
@@ -1546,20 +1630,30 @@
       function renderImpact() {
         const impact = calculateImpact();
         const carbon = impact.carbonKg.toFixed(1);
+        const treeYears = impact.carbonKg / state.treeAbsorptionKgPerYear;
+        const treeLabel = formatTreeCount(treeYears);
+        const treeDays = Math.max(1, Math.round(treeYears * 365));
         const carbonPercent = impactPercent(impact.carbonKg, 12);
         const cupPercent = impactPercent(impact.cups, 20);
         const paperPercent = impactPercent(impact.paperReceipts, 20);
+        const treePercent = impactPercent(treeYears, 1);
 
         document.getElementById("impactCarbon").textContent = carbon + "kgCO2e";
         document.getElementById("impactCarbonSmall").textContent = carbon + "kg";
         document.getElementById("impactCups").textContent = formatNumber(impact.cups) + "개";
         document.getElementById("impactPaper").textContent = formatNumber(impact.paperReceipts) + "장";
+        document.getElementById("impactTrees").textContent = treeLabel + "그루·년";
         document.getElementById("carbonBar").style.setProperty("--w", carbonPercent + "%");
         document.getElementById("cupBar").style.setProperty("--w", cupPercent + "%");
         document.getElementById("paperBar").style.setProperty("--w", paperPercent + "%");
+        document.getElementById("treeBar").style.setProperty("--w", treePercent + "%");
         document.getElementById("carbonPct").textContent = carbonPercent + "%";
         document.getElementById("cupPct").textContent = cupPercent + "%";
         document.getElementById("paperPct").textContent = paperPercent + "%";
+        document.getElementById("treePct").textContent = treePercent + "%";
+        document.getElementById("treeEquivalent").textContent = "나무 " + treeLabel + "그루·년 흡수량";
+        document.getElementById("treeEquivalentSub").textContent = "나무 1그루가 약 " + formatNumber(treeDays) + "일 동안 흡수하는 양과 비슷해요.";
+        renderTreeMeter(treeYears);
       }
 
       function renderNudge() {
